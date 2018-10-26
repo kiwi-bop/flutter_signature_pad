@@ -2,24 +2,22 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-final signatureKey = GlobalKey<SignatureState>();
+final _signatureKey = GlobalKey<SignatureState>();
 
 class Signature extends StatefulWidget {
   final Color color;
   final double strokeWidth;
 
-  Signature({this.color = Colors.black, this.strokeWidth = 5.0})
-      : super(key: signatureKey);
+  Signature({this.color = Colors.black, this.strokeWidth = 5.0}) : super(key: _signatureKey);
 
-  SignatureState createState() =>
-      SignatureState(color: color, strokeWidth: strokeWidth);
+  SignatureState createState() => SignatureState();
 
   ui.Image getData() {
-    return signatureKey.currentState.getData();
+    return _signatureKey.currentState.getData();
   }
 
   clear() {
-    return signatureKey.currentState.clear();
+    return _signatureKey.currentState.clear();
   }
 }
 
@@ -29,10 +27,7 @@ class SignaturePainter extends CustomPainter {
   final List<Offset> points;
   final Color strokeColor;
 
-  SignaturePainter(
-      {@required this.points,
-      @required this.strokeColor,
-      @required this.strokeWidth});
+  SignaturePainter({@required this.points, @required this.strokeColor, @required this.strokeWidth});
 
   void paint(Canvas canvas, Size size) {
     _lastSize = size;
@@ -41,16 +36,14 @@ class SignaturePainter extends CustomPainter {
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
     for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null)
-        canvas.drawLine(points[i], points[i + 1], paint);
+      if (points[i] != null && points[i + 1] != null) canvas.drawLine(points[i], points[i + 1], paint);
     }
   }
 
   ui.Image getData() {
     var recorder = ui.PictureRecorder();
     var origin = Offset(0.0, 0.0);
-    var paintBounds = Rect.fromPoints(
-        _lastSize.topLeft(origin), _lastSize.bottomRight(origin));
+    var paintBounds = Rect.fromPoints(_lastSize.topLeft(origin), _lastSize.bottomRight(origin));
     var canvas = Canvas(recorder, paintBounds);
     paint(canvas, _lastSize);
     var picture = recorder.endRecording();
@@ -64,14 +57,10 @@ class SignatureState extends State<Signature> {
   List<Offset> _points = <Offset>[];
   SignaturePainter _painter;
 
-  final Color color;
-  final double strokeWidth;
-
-  SignatureState({@required this.color, @required this.strokeWidth});
+  SignatureState();
 
   Widget build(BuildContext context) {
-    _painter = SignaturePainter(
-        points: _points, strokeColor: color, strokeWidth: strokeWidth);
+    _painter = SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
     return Stack(
       fit: StackFit.expand,
       children: [
@@ -79,8 +68,7 @@ class SignatureState extends State<Signature> {
         GestureDetector(
           onPanUpdate: (DragUpdateDetails details) {
             RenderBox referenceBox = context.findRenderObject();
-            Offset localPosition =
-                referenceBox.globalToLocal(details.globalPosition);
+            Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
 
             setState(() {
               _points = List.from(_points)..add(localPosition);
