@@ -15,7 +15,7 @@ For very basic usage, please check the example file [here](https://github.com/ki
 
 ## API
 
-The constructor of the widget allow you to change the `color` (default to black) and the `strokeWidth` (default to 5.0)
+The constructor of the widget allow you to change the `color` (default to black), the `strokeWidth` (default to 5.0) and a `backgroundPainter` if you want to add some kind of watermark
 
 `clear`: allow you to clear the area to start again
 

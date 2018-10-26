@@ -7,8 +7,9 @@ final _signatureKey = GlobalKey<SignatureState>();
 class Signature extends StatefulWidget {
   final Color color;
   final double strokeWidth;
+  final CustomPainter backgroundPainter;
 
-  Signature({this.color = Colors.black, this.strokeWidth = 5.0}) : super(key: _signatureKey);
+  Signature({this.color = Colors.black, this.strokeWidth = 5.0, this.backgroundPainter}) : super(key: _signatureKey);
 
   SignatureState createState() => SignatureState();
 
@@ -21,23 +22,55 @@ class Signature extends StatefulWidget {
   }
 }
 
-class SignaturePainter extends CustomPainter {
+class _SignaturePainter extends CustomPainter {
   Size _lastSize;
   final double strokeWidth;
   final List<Offset> points;
   final Color strokeColor;
+  Paint _linePaint;
 
-  SignaturePainter({@required this.points, @required this.strokeColor, @required this.strokeWidth});
-
-  void paint(Canvas canvas, Size size) {
-    _lastSize = size;
-    Paint paint = Paint()
+  _SignaturePainter({@required this.points, @required this.strokeColor, @required this.strokeWidth}) {
+    _linePaint = Paint()
       ..color = strokeColor
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
+  }
+
+  void paint(Canvas canvas, Size size) {
+    _lastSize = size;
     for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) canvas.drawLine(points[i], points[i + 1], paint);
+      if (points[i] != null && points[i + 1] != null) canvas.drawLine(points[i], points[i + 1], _linePaint);
     }
+  }
+
+  bool shouldRepaint(_SignaturePainter other) => other.points != points;
+}
+
+class SignatureState extends State<Signature> {
+  List<Offset> _points = <Offset>[];
+  _SignaturePainter _painter;
+  Size _lastSize;
+
+  SignatureState();
+
+  Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => afterFirstLayout(context));
+    _painter = _SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
+    return CustomPaint(
+      painter: widget.backgroundPainter,
+      foregroundPainter: _painter,
+      child: GestureDetector(
+        onPanUpdate: (DragUpdateDetails details) {
+          RenderBox referenceBox = context.findRenderObject();
+          Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
+
+          setState(() {
+            _points = List.from(_points)..add(localPosition);
+          });
+        },
+        onPanEnd: (DragEndDetails details) => _points.add(null),
+      ),
+    );
   }
 
   ui.Image getData() {
@@ -45,48 +78,19 @@ class SignaturePainter extends CustomPainter {
     var origin = Offset(0.0, 0.0);
     var paintBounds = Rect.fromPoints(_lastSize.topLeft(origin), _lastSize.bottomRight(origin));
     var canvas = Canvas(recorder, paintBounds);
-    paint(canvas, _lastSize);
+    widget.backgroundPainter.paint(canvas, _lastSize);
+    _painter.paint(canvas, _lastSize);
     var picture = recorder.endRecording();
     return picture.toImage(_lastSize.width.round(), _lastSize.height.round());
-  }
-
-  bool shouldRepaint(SignaturePainter other) => other.points != points;
-}
-
-class SignatureState extends State<Signature> {
-  List<Offset> _points = <Offset>[];
-  SignaturePainter _painter;
-
-  SignatureState();
-
-  Widget build(BuildContext context) {
-    _painter = SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        CustomPaint(painter: _painter),
-        GestureDetector(
-          onPanUpdate: (DragUpdateDetails details) {
-            RenderBox referenceBox = context.findRenderObject();
-            Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
-
-            setState(() {
-              _points = List.from(_points)..add(localPosition);
-            });
-          },
-          onPanEnd: (DragEndDetails details) => _points.add(null),
-        ),
-      ],
-    );
-  }
-
-  ui.Image getData() {
-    return _painter.getData();
   }
 
   void clear() {
     setState(() {
       _points = [];
     });
+  }
+
+  afterFirstLayout(BuildContext context) {
+    _lastSize = context.size;
   }
 }
