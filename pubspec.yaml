@@ -1,6 +1,6 @@
 name: flutter_signature_pad
 description: Flutter widget to allow users to sign with finger and export the result as image.
-version: 0.1.0
+version: 0.1.1
 author: jaumard <jimmy.aumard@gmail.com>
 homepage: https://github.com/kiwi-bop/flutter_signature_pad.git
 

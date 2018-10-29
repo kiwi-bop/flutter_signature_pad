@@ -73,7 +73,10 @@ class _MyHomePageState extends State<MyHomePage> {
         children: <Widget>[
           Expanded(
             child: Container(
-              child: sign,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: sign,
+              ),
               color: Colors.black12,
             ),
           ),

@@ -56,19 +56,21 @@ class SignatureState extends State<Signature> {
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => afterFirstLayout(context));
     _painter = _SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
-    return CustomPaint(
-      painter: widget.backgroundPainter,
-      foregroundPainter: _painter,
-      child: GestureDetector(
-        onPanUpdate: (DragUpdateDetails details) {
-          RenderBox referenceBox = context.findRenderObject();
-          Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
+    return ClipRect(
+      child: CustomPaint(
+        painter: widget.backgroundPainter,
+        foregroundPainter: _painter,
+        child: GestureDetector(
+          onPanUpdate: (DragUpdateDetails details) {
+            RenderBox referenceBox = context.findRenderObject();
+            Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
 
-          setState(() {
-            _points = List.from(_points)..add(localPosition);
-          });
-        },
-        onPanEnd: (DragEndDetails details) => _points.add(null),
+            setState(() {
+              _points = List.from(_points)..add(localPosition);
+            });
+          },
+          onPanEnd: (DragEndDetails details) => _points.add(null),
+        ),
       ),
     );
   }

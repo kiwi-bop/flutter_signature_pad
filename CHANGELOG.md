@@ -1,3 +1,7 @@
+## [0.1.1] - 29/10/2018.
+
+* clip painter to not have overflow
+
 ## [0.1.0] - 26/10/2018.
 
 * add background painter capabilities
