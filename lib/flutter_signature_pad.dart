@@ -8,8 +8,9 @@ class Signature extends StatefulWidget {
   final Color color;
   final double strokeWidth;
   final CustomPainter backgroundPainter;
+  final Function onSign;
 
-  Signature({this.color = Colors.black, this.strokeWidth = 5.0, this.backgroundPainter}) : super(key: _signatureKey);
+  Signature({this.color = Colors.black, this.strokeWidth = 5.0, this.backgroundPainter, this.onSign}) : super(key: _signatureKey);
 
   SignatureState createState() => SignatureState();
 
@@ -67,6 +68,7 @@ class SignatureState extends State<Signature> {
 
             setState(() {
               _points = List.from(_points)..add(localPosition);
+              widget.onSign();
             });
           },
           onPanEnd: (DragEndDetails details) => _points.add(null),

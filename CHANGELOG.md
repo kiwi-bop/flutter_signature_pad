@@ -1,3 +1,7 @@
+## [0.1.2] - 29/10/2018.
+
+* add onSign callback field
+
 ## [0.1.1] - 29/10/2018.
 
 * clip painter to not have overflow
