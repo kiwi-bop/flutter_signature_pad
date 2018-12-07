@@ -11,7 +11,7 @@ For help on editing package code, view the [documentation](https://flutter.io/de
 ## Getting Started with the widget
 This is a very simple widget that allow drawing by finger on a widget and be able to get the image back.
 
-For very basic usage, please check the example file [here](https://github.com/kiwi-bop/flutter_signature_pad/blob/master/example/example.dart)
+For very basic usage, please check the example file [here](https://github.com/kiwi-bop/flutter_signature_pad/blob/master/example/lib/main.dart)
 
 ## API
 
