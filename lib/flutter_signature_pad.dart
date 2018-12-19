@@ -9,17 +9,18 @@ class Signature extends StatefulWidget {
   final double strokeWidth;
   final CustomPainter backgroundPainter;
   final Function onSign;
+  final GlobalKey<SignatureState> _key;
 
-  Signature({this.color = Colors.black, this.strokeWidth = 5.0, this.backgroundPainter, this.onSign}) : super(key: _signatureKey);
+  Signature({this.color = Colors.black, this.strokeWidth = 5.0, this.backgroundPainter, this.onSign, GlobalKey key}) : _key = key ?? _signatureKey, super(key: key ?? _signatureKey);
 
   SignatureState createState() => SignatureState();
 
   ui.Image getData() {
-    return _signatureKey.currentState.getData();
+    return _key.currentState.getData();
   }
 
   clear() {
-    return _signatureKey.currentState.clear();
+    return _key.currentState.clear();
   }
 }
 

@@ -1,3 +1,7 @@
+## [0.2.2] - 19/12/2018.
+
+* allow custom Global key
+
 ## [0.1.2] - 29/10/2018.
 
 * add onSign callback field
