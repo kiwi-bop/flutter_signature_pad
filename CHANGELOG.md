@@ -1,3 +1,7 @@
+## [0.2.3] - 20/01/2019.
+
+* fix crash when onSign is not provided
+
 ## [0.2.2] - 19/12/2018.
 
 * allow custom Global key
