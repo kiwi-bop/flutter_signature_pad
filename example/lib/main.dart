@@ -80,7 +80,7 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.black12,
             ),
           ),
-          LimitedBox(maxHeight: 200.0, child: Image.memory(_img.buffer.asUint8List())),
+          _img.buffer.lengthInBytes == 0 ? Container() : LimitedBox(maxHeight: 200.0, child: Image.memory(_img.buffer.asUint8List())),
           Column(
             children: <Widget>[
               Row(

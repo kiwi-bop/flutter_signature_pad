@@ -69,7 +69,9 @@ class SignatureState extends State<Signature> {
 
             setState(() {
               _points = List.from(_points)..add(localPosition);
-              widget.onSign();
+              if(widget.onSign != null) {
+                widget.onSign();
+              }
             });
           },
           onPanEnd: (DragEndDetails details) => _points.add(null),
