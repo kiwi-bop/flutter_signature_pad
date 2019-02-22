@@ -97,6 +97,8 @@ class SignatureState extends State<Signature> {
     });
   }
 
+  bool hasPoints() => _points.length > 0;
+
   afterFirstLayout(BuildContext context) {
     _lastSize = context.size;
   }
