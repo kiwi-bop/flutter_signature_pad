@@ -1,3 +1,7 @@
+## [1.0.0] - 26/02/2019
+
+* fix getData signature to future as it was not compiling for flutter 1.2.1 anymore
+
 ## [0.2.3] - 20/01/2019.
 
 * fix crash when onSign is not provided

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -15,7 +16,7 @@ class Signature extends StatefulWidget {
 
   SignatureState createState() => SignatureState();
 
-  ui.Image getData() {
+  Future<ui.Image> getData() {
     return _key.currentState.getData();
   }
 
@@ -80,7 +81,7 @@ class SignatureState extends State<Signature> {
     );
   }
 
-  ui.Image getData() {
+  Future<ui.Image> getData() {
     var recorder = ui.PictureRecorder();
     var origin = Offset(0.0, 0.0);
     var paintBounds = Rect.fromPoints(_lastSize.topLeft(origin), _lastSize.bottomRight(origin));

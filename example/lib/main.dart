@@ -90,8 +90,8 @@ class _MyHomePageState extends State<MyHomePage> {
                       color: Colors.green,
                       onPressed: () async {
                         //retrieve image data, do whatever you want with it (send to server, save locally...)
-
-                        var data = await sign.getData().toByteData(format: ui.ImageByteFormat.png);
+                        final image = await sign.getData();
+                        var data = await image.toByteData(format: ui.ImageByteFormat.png);
                         sign.clear();
                         setState(() {
                           _img = data;
