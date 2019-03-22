@@ -3,25 +3,24 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 
-final _signatureKey = GlobalKey<SignatureState>();
-
 class Signature extends StatefulWidget {
   final Color color;
   final double strokeWidth;
   final CustomPainter backgroundPainter;
   final Function onSign;
-  final GlobalKey<SignatureState> _key;
 
-  Signature({this.color = Colors.black, this.strokeWidth = 5.0, this.backgroundPainter, this.onSign, GlobalKey key}) : _key = key ?? _signatureKey, super(key: key ?? _signatureKey);
+  Signature({
+    this.color = Colors.black,
+    this.strokeWidth = 5.0,
+    this.backgroundPainter,
+    this.onSign,
+    Key key,
+  }) : super(key: key);
 
   SignatureState createState() => SignatureState();
 
-  Future<ui.Image> getData() {
-    return _key.currentState.getData();
-  }
-
-  clear() {
-    return _key.currentState.clear();
+  static SignatureState of(BuildContext context) {
+    return context.ancestorStateOfType(TypeMatcher<SignatureState>());
   }
 }
 
@@ -39,6 +38,7 @@ class _SignaturePainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
   }
 
+  @override
   void paint(Canvas canvas, Size size) {
     _lastSize = size;
     for (int i = 0; i < points.length - 1; i++) {
@@ -46,6 +46,7 @@ class _SignaturePainter extends CustomPainter {
     }
   }
 
+  @override
   bool shouldRepaint(_SignaturePainter other) => other.points != points;
 }
 
@@ -56,6 +57,7 @@ class SignatureState extends State<Signature> {
 
   SignatureState();
 
+  @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => afterFirstLayout(context));
     _painter = _SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
@@ -70,7 +72,7 @@ class SignatureState extends State<Signature> {
 
             setState(() {
               _points = List.from(_points)..add(localPosition);
-              if(widget.onSign != null) {
+              if (widget.onSign != null) {
                 widget.onSign();
               }
             });
@@ -98,7 +100,9 @@ class SignatureState extends State<Signature> {
     });
   }
 
-  bool hasPoints() => _points.length > 0;
+  bool get hasPoints => _points.length > 0;
+
+  List<Offset> get points => _points;
 
   afterFirstLayout(BuildContext context) {
     _lastSize = context.size;

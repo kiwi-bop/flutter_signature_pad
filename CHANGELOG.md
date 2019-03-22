@@ -1,3 +1,9 @@
+## [2.0.0] - 22/04/2019
+
+* clean api
+* better readme
+* update example
+
 ## [1.0.0] - 26/02/2019
 
 * fix getData signature to future as it was not compiling for flutter 1.2.1 anymore
