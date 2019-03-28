@@ -88,7 +88,9 @@ class SignatureState extends State<Signature> {
     var origin = Offset(0.0, 0.0);
     var paintBounds = Rect.fromPoints(_lastSize.topLeft(origin), _lastSize.bottomRight(origin));
     var canvas = Canvas(recorder, paintBounds);
-    widget.backgroundPainter.paint(canvas, _lastSize);
+    if(widget.backgroundPainter != null) {
+      widget.backgroundPainter.paint(canvas, _lastSize);
+    }
     _painter.paint(canvas, _lastSize);
     var picture = recorder.endRecording();
     return picture.toImage(_lastSize.width.round(), _lastSize.height.round());

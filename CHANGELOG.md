@@ -1,4 +1,8 @@
-## [2.0.0] - 22/04/2019
+## [2.0.0+1] - 28/03/2019
+
+* fix crash when backgroundPainter is null
+
+## [2.0.0] - 22/03/2019
 
 * clean api
 * better readme
