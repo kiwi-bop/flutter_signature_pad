@@ -20,7 +20,7 @@ class Signature extends StatefulWidget {
   SignatureState createState() => SignatureState();
 
   static SignatureState of(BuildContext context) {
-    return context.ancestorStateOfType(TypeMatcher<SignatureState>());
+    return context.findAncestorStateOfType<SignatureState>();
   }
 }
 
