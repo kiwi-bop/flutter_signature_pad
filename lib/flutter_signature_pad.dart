@@ -66,6 +66,15 @@ class SignatureState extends State<Signature> {
         painter: widget.backgroundPainter,
         foregroundPainter: _painter,
         child: GestureDetector(
+          onPanStart: (DragStartDetails details) {
+            RenderBox referenceBox = context.findRenderObject();
+            Offset localPostion = referenceBox.globalToLocal(details.globalPosition);
+            setState(() {
+              _points = List.from(_points)
+                ..add(localPostion)
+                ..add(localPostion);
+            });
+          },
           onPanUpdate: (DragUpdateDetails details) {
             RenderBox referenceBox = context.findRenderObject();
             Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
