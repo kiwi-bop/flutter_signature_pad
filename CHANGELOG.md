@@ -1,3 +1,7 @@
+## [2.0.1] - 13/01/2020
+
+* draw point if users just touch screen without moving
+
 ## [2.0.0+1] - 28/03/2019
 
 * fix crash when backgroundPainter is null
