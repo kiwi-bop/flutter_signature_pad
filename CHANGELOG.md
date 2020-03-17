@@ -1,3 +1,7 @@
+## [2.0.2] - 17/03/2020
+
+* fix problems signature pad on scrollable container
+
 ## [2.0.1] - 13/01/2020
 
 * draw point if users just touch screen without moving
