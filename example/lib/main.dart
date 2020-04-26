@@ -1,15 +1,16 @@
-import 'dart:convert';
-import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_signature_pad/flutter_signature_pad.dart';
+import 'dart:math';
+import 'dart:typed_data';
+import 'package:image/image.dart' as img;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.landscapeLeft]);
+  await SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.landscapeLeft]);
   runApp(MyApp());
 }
 
@@ -41,7 +42,8 @@ class _WatermarkPaint extends CustomPainter {
 
   @override
   void paint(ui.Canvas canvas, ui.Size size) {
-    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 10.8, Paint()..color = Colors.blue);
+    canvas.drawCircle(Offset(size.width / 2, size.height / 2), 10.8,
+        Paint()..color = Colors.blue);
   }
 
   @override
@@ -51,14 +53,18 @@ class _WatermarkPaint extends CustomPainter {
 
   @override
   bool operator ==(Object other) =>
-      identical(this, other) || other is _WatermarkPaint && runtimeType == other.runtimeType && price == other.price && watermark == other.watermark;
+      identical(this, other) ||
+      other is _WatermarkPaint &&
+          runtimeType == other.runtimeType &&
+          price == other.price &&
+          watermark == other.watermark;
 
   @override
   int get hashCode => price.hashCode ^ watermark.hashCode;
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  ByteData _img = ByteData(0);
+  Uint8List finalImage = null;
   var color = Colors.red;
   var strokeWidth = 5.0;
   final _sign = GlobalKey<SignatureState>();
@@ -86,7 +92,11 @@ class _MyHomePageState extends State<MyHomePage> {
               color: Colors.black12,
             ),
           ),
-          _img.buffer.lengthInBytes == 0 ? Container() : LimitedBox(maxHeight: 200.0, child: Image.memory(_img.buffer.asUint8List())),
+          finalImage == null
+              ? Container()
+              : LimitedBox(
+                  maxHeight: 200.0,
+                  child: Image.memory(finalImage.buffer.asUint8List())),
           Column(
             children: <Widget>[
               Row(
@@ -95,16 +105,55 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialButton(
                       color: Colors.green,
                       onPressed: () async {
-                        final sign = _sign.currentState;
-                        //retrieve image data, do whatever you want with it (send to server, save locally...)
-                        final image = await sign.getData();
-                        var data = await image.toByteData(format: ui.ImageByteFormat.png);
+                        SignatureState sign = _sign.currentState;
+                        int lineColor =
+                            img.getColor(color.red, color.green, color.blue);
+                        int backColor = img.getColor(255, 255, 255);
+                        int imageWidth;
+                        int imageHeight;
+                        BuildContext currentContext = _sign.currentContext;
+                        if (currentContext != null) {
+                          var box =
+                              currentContext.findRenderObject() as RenderBox;
+                          imageWidth = box.size.width.toInt();
+                          imageHeight = box.size.height.toInt();
+                        }
+
+                        // create the image with the given size
+                        img.Image signatureImage =
+                            img.Image(imageWidth, imageHeight);
+
+                        // set the image background color
+                        // remove this for a transparent background
+                        img.fill(signatureImage, backColor);
+
+                        for (int i = 0; i < sign.points.length - 1; i++) {
+                          if (sign.points[i] != null &&
+                              sign.points[i + 1] != null) {
+                            img.drawLine(
+                                signatureImage,
+                                sign.points[i].dx.toInt(),
+                                sign.points[i].dy.toInt(),
+                                sign.points[i + 1].dx.toInt(),
+                                sign.points[i + 1].dy.toInt(),
+                                lineColor,
+                                thickness: 3);
+                          } else if (sign.points[i] != null &&
+                              sign.points[i + 1] == null) {
+                            // draw the point to the image
+                            img.drawPixel(
+                                signatureImage,
+                                sign.points[i].dx.toInt(),
+                                sign.points[i].dy.toInt(),
+                                lineColor);
+                          }
+                        }
                         sign.clear();
-                        final encoded = base64.encode(data.buffer.asUint8List());
                         setState(() {
-                          _img = data;
+                          finalImage =
+                              img.encodePng(signatureImage) as Uint8List;
                         });
-                        debugPrint("onPressed " + encoded);
+                        debugPrint("onPressed ");
                       },
                       child: Text("Save")),
                   MaterialButton(
@@ -113,7 +162,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         final sign = _sign.currentState;
                         sign.clear();
                         setState(() {
-                          _img = ByteData(0);
+                          finalImage = null;
                         });
                         debugPrint("cleared");
                       },
@@ -126,7 +175,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialButton(
                       onPressed: () {
                         setState(() {
-                          color = color == Colors.green ? Colors.red : Colors.green;
+                          color =
+                              color == Colors.green ? Colors.red : Colors.green;
                         });
                         debugPrint("change color");
                       },
