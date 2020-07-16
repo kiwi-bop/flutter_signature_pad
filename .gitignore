@@ -10,3 +10,5 @@ ios/Flutter/Generated.xcconfig
 ios/Runner/GeneratedPluginRegistrant.*
 /pubspec.lock
 /flutter_signature_pad.iml
+/.idea
+/example/pubspec.lock
