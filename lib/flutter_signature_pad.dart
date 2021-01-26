@@ -31,10 +31,7 @@ class _SignaturePainter extends CustomPainter {
   final Color strokeColor;
   Paint _linePaint;
 
-  _SignaturePainter(
-      {@required this.points,
-      @required this.strokeColor,
-      @required this.strokeWidth}) {
+  _SignaturePainter({@required this.points, @required this.strokeColor, @required this.strokeWidth}) {
     _linePaint = Paint()
       ..color = strokeColor
       ..strokeWidth = strokeWidth
@@ -45,8 +42,7 @@ class _SignaturePainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     _lastSize = size;
     for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null)
-        canvas.drawLine(points[i], points[i + 1], _linePaint);
+      if (points[i] != null && points[i + 1] != null) canvas.drawLine(points[i], points[i + 1], _linePaint);
     }
   }
 
@@ -63,32 +59,51 @@ class SignatureState extends State<Signature> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => afterFirstLayout(context));
-    _painter = _SignaturePainter(
-        points: _points,
-        strokeColor: widget.color,
-        strokeWidth: widget.strokeWidth);
+    WidgetsBinding.instance.addPostFrameCallback((_) => afterFirstLayout(context));
+    _painter = _SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
     return ClipRect(
       child: CustomPaint(
         painter: widget.backgroundPainter,
         foregroundPainter: _painter,
         child: GestureDetector(
-            onVerticalDragStart: _onDragStart,
-            onVerticalDragUpdate: _onDragUpdate,
-            onVerticalDragEnd: _onDragEnd,
-            onPanStart: _onDragStart,
-            onPanUpdate: _onDragUpdate,
-            onPanEnd: _onDragEnd),
+          onVerticalDragStart: _onDragStart,
+          onVerticalDragUpdate: _onDragUpdate,
+          onVerticalDragEnd: _onDragEnd,
+          onPanStart: _onDragStart,
+          onPanUpdate: _onDragUpdate,
+          onPanEnd: _onDragEnd,
+          onTapDown: _onTapDown,
+          onTapUp: _onTapUp,
+        ),
       ),
     );
   }
 
+  void _onTapDown(TapDownDetails details) {
+    RenderBox referenceBox = context.findRenderObject();
+    Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
+    setState(() {
+      _points = List.from(_points)..add(localPosition)..add(localPosition);
+    });
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    RenderBox referenceBox = context.findRenderObject();
+    Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
+    setState(() {
+      _points = List.from(_points)..add(localPosition);
+      if (widget.onSign != null) {
+        widget.onSign();
+      }
+    });
+    _points.add(null);
+  }
+
   void _onDragStart(DragStartDetails details) {
     RenderBox referenceBox = context.findRenderObject();
-    Offset localPostion = referenceBox.globalToLocal(details.globalPosition);
+    Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
     setState(() {
-      _points = List.from(_points)..add(localPostion)..add(localPostion);
+      _points = List.from(_points)..add(localPosition)..add(localPosition);
     });
   }
 
@@ -109,8 +124,7 @@ class SignatureState extends State<Signature> {
   Future<ui.Image> getData() {
     var recorder = ui.PictureRecorder();
     var origin = Offset(0.0, 0.0);
-    var paintBounds = Rect.fromPoints(
-        _lastSize.topLeft(origin), _lastSize.bottomRight(origin));
+    var paintBounds = Rect.fromPoints(_lastSize.topLeft(origin), _lastSize.bottomRight(origin));
     var canvas = Canvas(recorder, paintBounds);
     if (widget.backgroundPainter != null) {
       widget.backgroundPainter.paint(canvas, _lastSize);
@@ -122,7 +136,7 @@ class SignatureState extends State<Signature> {
 
   void clear() {
     setState(() {
-      _points = []; 
+      _points = [];
     });
   }
 

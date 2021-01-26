@@ -50,8 +50,7 @@ class _WatermarkPaint extends CustomPainter {
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) || other is _WatermarkPaint && runtimeType == other.runtimeType && price == other.price && watermark == other.watermark;
+  bool operator ==(Object other) => identical(this, other) || other is _WatermarkPaint && runtimeType == other.runtimeType && price == other.price && watermark == other.watermark;
 
   @override
   int get hashCode => price.hashCode ^ watermark.hashCode;
