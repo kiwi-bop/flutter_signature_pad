@@ -1,3 +1,7 @@
+## [2.0.3] - 26/01/2021
+
+* fix drawing point
+
 ## [2.0.2] - 17/03/2020
 
 * fix problems signature pad on scrollable container
