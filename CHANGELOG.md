@@ -1,3 +1,7 @@
+## [3.0.0] - 19/03/2021
+
+* migrate to null safety
+
 ## [2.0.3] - 26/01/2021
 
 * fix drawing point
