@@ -57,7 +57,7 @@ class SignatureState extends State<Signature> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance!.addPostFrameCallback((_) => afterFirstLayout(context));
+    WidgetsBinding.instance.addPostFrameCallback((_) => afterFirstLayout(context));
     _painter = _SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
     return ClipRect(
       child: CustomPaint(

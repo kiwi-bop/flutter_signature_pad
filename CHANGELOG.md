@@ -1,3 +1,7 @@
+## [3.0.1] - 31/05/2022
+
+* Upgraded to support Flutter 3.0.0
+
 ## [3.0.0] - 19/03/2021
 
 * migrate to null safety
