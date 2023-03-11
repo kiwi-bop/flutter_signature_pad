@@ -63,10 +63,7 @@ class _SignaturePainter extends CustomPainter {
   final Color strokeColor;
   late Paint _linePaint;
 
-  _SignaturePainter(
-      {required this.points,
-      required this.strokeColor,
-      required this.strokeWidth}) {
+  _SignaturePainter({required this.points, required this.strokeColor, required this.strokeWidth}) {
     _linePaint = Paint()
       ..color = strokeColor
       ..strokeWidth = strokeWidth
@@ -76,15 +73,12 @@ class _SignaturePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i]!, points[i + 1]!, _linePaint);
-      }
+      if (points[i] != null && points[i + 1] != null) canvas.drawLine(points[i]!, points[i + 1]!, _linePaint);
     }
   }
 
   @override
-  bool shouldRepaint(_SignaturePainter oldDelegate) =>
-      oldDelegate.points != points;
+  bool shouldRepaint(_SignaturePainter other) => other.points != points;
 }
 
 class SignatureState extends State<Signature> {
@@ -100,12 +94,8 @@ class SignatureState extends State<Signature> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => afterFirstLayout(context));
-    widget.controller._painter = _SignaturePainter(
-        points: widget.controller.points,
-        strokeColor: widget.color,
-        strokeWidth: widget.strokeWidth);
+    WidgetsBinding.instance.addPostFrameCallback((_) => afterFirstLayout(context));
+    widget.controller._painter = _SignaturePainter(points: widget.controller.points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
     return ClipRect(
       child: CustomPaint(
         painter: widget.controller.backgroundPainter,
@@ -151,9 +141,7 @@ class SignatureState extends State<Signature> {
     RenderBox referenceBox = context.findRenderObject() as RenderBox;
     Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
     setState(() {
-      widget.controller.points = List.from(widget.controller.points)
-        ..add(localPosition)
-        ..add(localPosition);
+      widget.controller.points = List.from(widget.controller.points)..add(localPosition)..add(localPosition);
     });
   }
 
@@ -162,8 +150,7 @@ class SignatureState extends State<Signature> {
     Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
 
     setState(() {
-      widget.controller.points = List.from(widget.controller.points)
-        ..add(localPosition);
+      widget.controller.points = List.from(widget.controller.points)..add(localPosition);
       if (widget.onSign != null) {
         widget.onSign!();
       }
