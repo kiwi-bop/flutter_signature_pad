@@ -3,7 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('adds one to input values', () {
-    final sign = Signature();
+    final sign = Signature(controller: SignatureController());
     expect(sign, sign);
   });
 }

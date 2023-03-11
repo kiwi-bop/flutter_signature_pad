@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:math';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -60,7 +59,8 @@ class _MyHomePageState extends State<MyHomePage> {
   ByteData _img = ByteData(0);
   var color = Colors.red;
   var strokeWidth = 5.0;
-  final _sign = GlobalKey<SignatureState>();
+  final controller =
+      SignatureController(backgroundPainter: _WatermarkPaint("2.0", "2.0"));
 
   @override
   Widget build(BuildContext context) {
@@ -72,13 +72,12 @@ class _MyHomePageState extends State<MyHomePage> {
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: Signature(
+                  controller: controller,
                   color: color,
-                  key: _sign,
                   onSign: () {
-                    final sign = _sign.currentState;
-                    debugPrint('${sign.points.length} points in the signature');
+                    debugPrint(
+                        '${controller.points.length} points in the signature');
                   },
-                  backgroundPainter: _WatermarkPaint("2.0", "2.0"),
                   strokeWidth: strokeWidth,
                 ),
               ),
@@ -94,11 +93,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialButton(
                       color: Colors.green,
                       onPressed: () async {
-                        final sign = _sign.currentState;
                         //retrieve image data, do whatever you want with it (send to server, save locally...)
-                        final image = await sign.getData();
+                        final image = await controller.getData();
                         var data = await image.toByteData(format: ui.ImageByteFormat.png);
-                        sign.clear();
+                        controller.clear();
                         final encoded = base64.encode(data.buffer.asUint8List());
                         setState(() {
                           _img = data;
@@ -109,8 +107,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   MaterialButton(
                       color: Colors.grey,
                       onPressed: () {
-                        final sign = _sign.currentState;
-                        sign.clear();
+                        controller.clear();
                         setState(() {
                           _img = ByteData(0);
                         });

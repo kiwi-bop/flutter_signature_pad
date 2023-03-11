@@ -1,23 +1,56 @@
+import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+class SignatureController {
+  final CustomPainter? backgroundPainter;
+  List<Offset?> points = <Offset?>[];
+  void Function()? _onChange;
+  _SignaturePainter? _painter;
+  late Size _lastSize;
+
+  SignatureController({this.backgroundPainter});
+
+  bool get hasPoints => points.isNotEmpty;
+
+  Future<ui.Image> getData() {
+    var recorder = ui.PictureRecorder();
+    var origin = const Offset(0.0, 0.0);
+    var paintBounds = Rect.fromPoints(
+        _lastSize.topLeft(origin), _lastSize.bottomRight(origin));
+    var canvas = Canvas(recorder, paintBounds);
+    if (backgroundPainter != null) {
+      backgroundPainter!.paint(canvas, _lastSize);
+    }
+    _painter!.paint(canvas, _lastSize);
+    var picture = recorder.endRecording();
+    return picture.toImage(_lastSize.width.round(), _lastSize.height.round());
+  }
+
+  void clear() {
+    points = [];
+    if (_onChange != null) {
+      _onChange!();
+    }
+  }
+}
 
 class Signature extends StatefulWidget {
+  final SignatureController controller;
   final Color color;
   final double strokeWidth;
-  final CustomPainter? backgroundPainter;
   final Function? onSign;
 
-  Signature({
+  const Signature({
+    required this.controller,
     this.color = Colors.black,
     this.strokeWidth = 5.0,
-    this.backgroundPainter,
     this.onSign,
     Key? key,
   }) : super(key: key);
 
-  SignatureState createState() => SignatureState();
+  @override
+  State<Signature> createState() => SignatureState();
 
   static SignatureState? of(BuildContext context) {
     return context.findAncestorStateOfType<SignatureState>();
@@ -49,20 +82,24 @@ class _SignaturePainter extends CustomPainter {
 }
 
 class SignatureState extends State<Signature> {
-  List<Offset?> _points = <Offset?>[];
-  _SignaturePainter? _painter;
-  late Size _lastSize;
-
   SignatureState();
+
+  @override
+  void initState() {
+    super.initState();
+    widget.controller._onChange = () {
+      setState(() {});
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) => afterFirstLayout(context));
-    _painter = _SignaturePainter(points: _points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
+    widget.controller._painter = _SignaturePainter(points: widget.controller.points, strokeColor: widget.color, strokeWidth: widget.strokeWidth);
     return ClipRect(
       child: CustomPaint(
-        painter: widget.backgroundPainter,
-        foregroundPainter: _painter,
+        painter: widget.controller.backgroundPainter,
+        foregroundPainter: widget.controller._painter,
         child: GestureDetector(
           onVerticalDragStart: _onDragStart,
           onVerticalDragUpdate: _onDragUpdate,
@@ -81,7 +118,9 @@ class SignatureState extends State<Signature> {
     RenderBox referenceBox = context.findRenderObject() as RenderBox;
     Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
     setState(() {
-      _points = List.from(_points)..add(localPosition)..add(localPosition);
+      widget.controller.points = List.from(widget.controller.points)
+        ..add(localPosition)
+        ..add(localPosition);
     });
   }
 
@@ -89,19 +128,20 @@ class SignatureState extends State<Signature> {
     RenderBox referenceBox = context.findRenderObject() as RenderBox;
     Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
     setState(() {
-      _points = List.from(_points)..add(localPosition);
+      widget.controller.points = List.from(widget.controller.points)
+        ..add(localPosition);
       if (widget.onSign != null) {
         widget.onSign!();
       }
     });
-    _points.add(null);
+    widget.controller.points.add(null);
   }
 
   void _onDragStart(DragStartDetails details) {
     RenderBox referenceBox = context.findRenderObject() as RenderBox;
     Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
     setState(() {
-      _points = List.from(_points)..add(localPosition)..add(localPosition);
+      widget.controller.points = List.from(widget.controller.points)..add(localPosition)..add(localPosition);
     });
   }
 
@@ -110,39 +150,16 @@ class SignatureState extends State<Signature> {
     Offset localPosition = referenceBox.globalToLocal(details.globalPosition);
 
     setState(() {
-      _points = List.from(_points)..add(localPosition);
+      widget.controller.points = List.from(widget.controller.points)..add(localPosition);
       if (widget.onSign != null) {
         widget.onSign!();
       }
     });
   }
 
-  void _onDragEnd(DragEndDetails details) => _points.add(null);
-
-  Future<ui.Image> getData() {
-    var recorder = ui.PictureRecorder();
-    var origin = Offset(0.0, 0.0);
-    var paintBounds = Rect.fromPoints(_lastSize.topLeft(origin), _lastSize.bottomRight(origin));
-    var canvas = Canvas(recorder, paintBounds);
-    if (widget.backgroundPainter != null) {
-      widget.backgroundPainter!.paint(canvas, _lastSize);
-    }
-    _painter!.paint(canvas, _lastSize);
-    var picture = recorder.endRecording();
-    return picture.toImage(_lastSize.width.round(), _lastSize.height.round());
-  }
-
-  void clear() {
-    setState(() {
-      _points = [];
-    });
-  }
-
-  bool get hasPoints => _points.length > 0;
-
-  List<Offset?> get points => _points;
+  void _onDragEnd(DragEndDetails details) => widget.controller.points.add(null);
 
   afterFirstLayout(BuildContext context) {
-    _lastSize = context.size!;
+    widget.controller._lastSize = context.size!;
   }
 }
